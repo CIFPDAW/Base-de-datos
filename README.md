@@ -47,11 +47,10 @@ El archivo incluye consultas para:
 
 1. Crear la base de datos:
 
-`sql
-
+```sql
 CREATE DATABASE ies;
-
-USE ies;`
+USE ies;
+```
 
 
 2. Ejecutar las consultas según necesidad desde el archivo `EjerciciosPropuestos.sql`
