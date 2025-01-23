@@ -1,0 +1,247 @@
+/*Ejercicios de la base de datos IES*/
+
+use ies;
+
+/*Una tabla*/
+
+/*1.- Relación de alumnos del grupo 811NMA*/
+
+select a.* from Alumno a
+where a.CodigoGrupo = "811NMA";
+
+select * from Alumno;
+
+/*2.- Relación de alumnos que son de TACORONTE*/
+
+select a.* from Alumno a
+where a.Municipio like "Tacoronte";
+
+select * from Alumno;
+
+/*3.- Relación de grupos que no tienen tutor*/
+
+select g.* from Grupo g
+where g.CodigoTutor is null;
+
+select * from Grupo;
+
+/*4.- Relación de alumnos que viven en el CALVARIO*/
+
+select a.* from Alumno a
+where Direccion like "%Calvario%";
+
+select * from Alumno;
+
+/*5.- ¿Cuántos alumnos tienen de código postal 38350?*/
+
+select count(*) from Alumno al
+where al.Codigo_Postal = 38350;
+
+select * from Alumno;
+
+/*6.- ¿Cuántos alumnos tienen el grupo 811NMA?*/
+
+select count(*) "Cantidad" from Alumno al
+where al.CodigoGrupo like "811NMA";
+
+select * from Alumno;
+
+/*7.- ¿Cuátos grupos tiene el centro escolar?*/
+
+select count(*) "Cantidad" from Grupo gp;
+
+select * from Grupo;
+
+
+/*Varias tablas*/
+
+/*8.- Realación de asignaturas del alumno "PEPE GARCIA SANCHEZ"*/
+
+select al.*, asig.Denominacion from Alumno al inner join AlumnoNota an
+on al.Codigo = an.CodigoAlumno inner join Asignatura asig
+on an.CodigoAsignatura = asig.Codigo
+where al.Nombre like "PEPE" and al.Apellidos like "GARCIA SANCHEZ";
+
+select * from Alumno;
+select * from Asignatura;
+
+/*9.- Relación de asignaturas aprobadas del alumno "PEPE GARCIA SANCHEZ"*/
+
+select al.Codigo, al.Nombre, al.Apellidos, asig.Denominacion, an.Nota from Alumno al inner join AlumnoNota an
+on al.Codigo = an.CodigoAlumno inner join Asignatura asig
+on an.CodigoAsignatura = asig.Codigo
+where al.Nombre like "PEPE" and al.Apellidos like "GARCIA SANCHEZ" and an.Nota >= 5;
+
+/*10.- Boletín de notas del alumno "PEPA PEREZ DE LEON"*/
+
+select al.Nombre, al.Apellidos, asig.Denominacion, an.Nota from Alumno al inner join AlumnoNota an
+on al.Codigo = an.CodigoAlumno inner join Asignatura asig
+on an.CodigoAsignatura = asig.Codigo
+where al.Nombre = "PEPE" and al.Apellidos = "GARCIA SANCHEZ";
+
+select * from Alumno where Nombre like "PEPA" and Apellidos like "PEREZ DE LEON";
+
+/*11.- Relación de asignaturas aprobadas del grupo 811NMA*/
+
+select al.CodigoGrupo, asig.Denominacion, an.Nota from Alumno al inner join AlumnoNota an
+on al.Codigo = an.CodigoAlumno inner join Asignatura asig
+on an.CodigoAsignatura = asig.Codigo
+where al.CodigoGrupo = "811NMA" and an.Nota >= 5;
+
+/*12.- Relación de alumnos que tiene la asignatura con código 91302*/
+
+select al.Nombre, al.Apellidos from Alumno al inner join AlumnoNota an
+on al.Codigo = an.CodigoAlumno
+where an.CodigoAsignatura = 91302;
+
+/*13.- Realción de alumnos que han aprobado la asignatura "Cultivos en Viveros e Invernaderos*/
+
+select al.Nombre, al.Apellidos, an.Nota from Alumno al inner join AlumnoNota an
+on al.Codigo = an.CodigoAlumno inner join Asignatura asig 
+on an.CodigoAsignatura = asig.Codigo
+where asig.Denominacion like "Cultivos en Viveros e Invernaderos" and an.Nota > 4;
+
+/*14.- Relación de los Grupos indicando el nombre del Tutor*/
+
+select g.Codigo, p.Nombre from Grupo g inner join Profesor p
+on g.CodigoTutor = p.Codigo;
+
+select * from Grupo;
+select * from Profesor;
+
+/*15.- Relación de los profesores que imparten las asignaturas de los grupos. Indicando nombre del profesor 
+y nombre de la asignatura.*/
+
+select p.Nombre, a.Denominacion from Profesor p inner join AsignaturasGrupo ag
+on p.Codigo = ag.CodigoProfesor inner join Asignatura a
+on ag.CodigoAsignatura = a.Codigo;
+
+/*16.- Relación de profesores por orden alfabético*/
+
+select distinct p.Nombre, p.Codigo from Profesor p inner join AsignaturasGrupo ag
+on p.Codigo = ag.CodigoProfesor
+order by p.Nombre;
+
+select * from Profesor;
+
+/*17.- Relación de asignaturas suspendidas del grupo 124NMA*/
+
+select an.Nota, a.Denominacion from AlumnoNota an inner Join Asignatura a
+on an.CodigoAsignatura = a.Codigo inner join AsignaturasGrupo ag
+on a.Codigo = ag.CodigoAsignatura
+where an.Nota < 5 and ag.CodigoGrupo like "124NMA";
+
+/*18.- Relación de alumnos que han sacado un 6 en la nota de la asignatura "TECNICAS BASICAS DE JARDINERIA"*/
+
+select al.Nombre, al.Apellidos, an.Nota from Alumno al inner join AlumnoNota an
+on al.Codigo = an.CodigoAlumno inner join Asignatura asig 
+on an.CodigoAsignatura = asig.Codigo
+where asig.Denominacion like "TECNICAS BASICAS DE JARDINERIA" and an.Nota = 6;
+
+/*19.- Relación de asignaturas que imparte el profesor "ARRATE MARRERO, CARLOS"*/
+
+select distinct asig.Denominacion from Asignatura asig inner join AsignaturasGrupo ag
+on asig.Codigo = ag.CodigoAsignatura inner join Profesor p
+on ag.CodigoProfesor = p.Codigo
+where p.Nombre like "ARRATE MARRERO, CARLOS";
+
+/*20.- Relación de alumnos que a suspendido el profesor "VIZCAINO SOSA, JOAQUIN"*/
+
+select prof.Nombre "Profesor", al.Nombre "Alumno" from Profesor prof inner join AsignaturasGrupo ag
+on prof.Codigo = ag.CodigoGrupo inner join Grupo gp
+on ag.CodigoGrupo = gp.Codigo inner join Alumno al
+on gp.Codigo = al.CodigoGrupo inner join AlumnoNota an
+on al.Codigo = an.CodigoAlumno
+where prof.Nombre like "VIZCAINO SOSA, JOAQUIN" and an.Nota < 5;
+
+/*21.- Relación de grupos a los que imparte clase el profesor "POLO ORTEGA, ANGEL"*/
+
+select ag.CodigoGrupo from AsignaturasGrupo ag inner join Profesor prof
+on ag.CodigoProfesor = prof.Codigo 
+where prof.Nombre like "POLO ORTEGA, ANGEL";
+
+/*22.- Relación de alumnos que son del SAUZAL y les da clase el profesor "PRIETO, RAMON"*/
+
+select al.Nombre from Alumno al inner join Grupo gp
+on al.CodigoGrupo = gp.Codigo inner join AsignaturasGrupo ag
+on gp.Codigo = ag.CodigoGrupo inner join Profesor prof
+on ag.CodigoProfesor = prof.Codigo
+where al.Municipio like "SAUZAL" and prof.Nombre like "PRIETO, RAMON";
+
+/*23.- Número de alumnos del grupo 913NMA*/
+
+select count(*) "Total" from Alumno al
+where al.CodigoGrupo like "913NMA";
+
+/*24.- Número de grupos que hay en este centro*/
+
+select count(*) from Grupo;
+
+/*25.- Número de alumnos que son del SAUZAL */
+
+select count(*) "Total" from Alumno al
+where al.Municipio like "%SAUZAL%";
+
+/*26.- Número de alumnos que han suspendido la asignatura 91302*/
+
+select count(*) "Total Suspendidos" from AlumnoNota an
+where an.Nota < 5 and an.CodigoAsignatura = 91302;
+
+/*27.- Número de alumnos que han aprobado la asignatura 91302*/
+
+select count(*) "Total Aprobado" from AlumnoNota an
+where an.Nota > 4 and an.CodigoAsignatura = 91302;
+
+/*28.- Número de alumnos que tienen la asignatura 91302*/
+
+select count(*) from AlumnoNota an
+where an.CodigoAsignatura = 91302;
+
+/*29.- Número de alumnos a los que les da calse el profesor "POLO ORTEGA, ANGEL"*/
+
+select count(*) from Alumno al inner join Grupo gp
+on al.CodigoGrupo = gp.Codigo inner join AsignaturasGrupo ag
+on gp.Codigo = ag.CodigoGrupo inner join Profesor prof
+on ag.CodigoProfesor = prof.Codigo
+where prof.Nombre like "POLO ORTEGA, ANGEL";
+
+select count(an.CodigoAlumno) from AlumnoNota an inner join AsignaturasGrupo ag
+on an.CodigoAsignatura = ag.CodigoAsignatura inner join Profesor prof
+on ag.CodigoProfesor = prof.Codigo
+where prof.Nombre like "POLO ORTEGA, ANGEL";
+
+/*30.- Nota media del alumno "PEPE GARCIA SANCHEZ"*/
+
+select avg(an.Nota) from AlumnoNota an inner join Alumno al
+on an.CodigoAlumno = al.Codigo
+where al.Nombre like "PEPE GARCIA SANCHEZ";
+
+/*31.- Nota media del grupo 913NMA en la asignatura 91303*/
+
+select avg(an.Nota) from AlumnoNota an inner join AsignaturasGrupo ag
+on an.CodigoAsignatura = ag.CodigoAsignatura
+where ag.CodigoGrupo like "913NMA" and an.CodigoAsignatura = 91303;
+
+/*32.- Nota media de la asignatura 91303 de todos los grupos*/
+
+select avg(an.Nota) from AlumnoNota an
+where an.CodigoAsignatura = 91303;
+
+/*33.- Nota media de los alumnos que se matricularon por primera ven en el año 96*/
+
+select * from Alumno;
+
+/*34.- Cual es la nota máxima en la asignatura 91304*/
+
+select max(Nota) from AlumnoNota
+where CodigoAsignatura = 91304;
+
+/*35.- Cual es la nota mínima en la asignatura 91302*/
+
+select min(Nota) from AlumnoNota
+where CodigoAsignatura = 91302;
+
+
+/*UNIONES*/
+
+/*36.- */
