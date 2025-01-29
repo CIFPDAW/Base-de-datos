@@ -241,7 +241,99 @@ where CodigoAsignatura = 91304;
 select min(Nota) from AlumnoNota
 where CodigoAsignatura = 91302;
 
+/*GROUP BY*/
 
-/*UNIONES*/
+/*40. Relación de notas medias de los alumnos del grupo 913NMB*/
 
-/*36.- */
+
+
+/*41. Número de asignaturas que imparte cada profesor del centro.*/
+
+SELECT COUNT(ag.CodigoAsignatura), p.Nombre FROM profesor p INNER JOIN asignaturasgrupo ag ON p.Codigo = ag.CodigoProfesor GROUP BY p.Nombre;
+
+/*42. Nota media de los alumnos de cada municipio.*/
+
+SELECT AVG(an.Nota) 'Nota Media', a.Municipio FROM alumno a INNER JOIN alumnonota an ON an.CodigoAlumno = a.Codigo GROUP BY a.Municipio;
+
+/*43. Nota media de los alumnos por profesor.*/
+
+SELECT AVG(an.Nota) 'Nota Media', p.Nombre FROM alumno a INNER JOIN alumnonota an ON an.CodigoAlumno = a.Codigo INNER JOIN asignatura asi ON asi.Codigo = an.CodigoAsignatura INNER JOIN asignaturasgrupo ag ON ag.CodigoAsignatura = asi.Codigo INNER JOIN profesor p ON ag.CodigoProfesor = p.Codigo GROUP BY p.Nombre;
+
+/*44. de alumnos del SAUZAL cuya nota media este entre 2 y 6.*/
+
+SELECT AVG(an.Nota) 'Nota Media', a.Nombre, a.Municipio FROM alumno a INNER JOIN alumnonota an ON an.CodigoAlumno = a.Codigo WHERE a.Municipio LIKE '%SAUZAL' GROUP BY an.CodigoAlumno HAVING AVG(an.Nota) BETWEEN 2 AND 6;
+
+/*45. Relación de nota media por profesor y asignatura.*/
+
+SELECT AVG(an.Nota) 'Nota Media', p.Nombre
+FROM alumnonota an INNER JOIN asignatura asi
+ON an.CodigoAsignatura = asi.Codigo INNER JOIN asignaturasgrupo ag
+ON ag.CodigoAsignatura = asi.Codigo INNER JOIN profesor p
+ON p.Codigo = ag.CodigoProfesor GROUP BY p.Codigo, p.Nombre;
+
+/*46. Relación de nota media por asignatura.*/
+
+SELECT asi.Denominacion, AVG(an.Nota) 'Nota Media'
+FROM alumnonota an INNER JOIN asignatura asi
+ON an.CodigoAsignatura = asi.Codigo INNER JOIN asignaturasgrupo ag
+ON ag.CodigoAsignatura = asi.Codigo  GROUP BY asi.Codigo;
+
+/*47. Relación de nota media por asignatura del grupo 913NMA.*/
+
+SELECT asi.Denominacion, AVG(an.Nota) 'Nota Media'
+FROM alumnonota an INNER JOIN asignatura asi
+ON an.CodigoAsignatura = asi.Codigo INNER JOIN asignaturasgrupo ag
+ON ag.CodigoAsignatura = asi.Codigo WHERE ag.CodigoGrupo = '913NMA'
+GROUP BY asi.Codigo;
+
+/*48. Relación alumnos con sus notas medias que son de TACORONTE y tienen de nota media entre un 5 y un 9.*/
+
+SELECT asi.Denominacion, AVG(an.Nota) 'Nota Media'
+FROM alumnonota an INNER JOIN asignatura asi
+ON an.CodigoAsignatura = asi.Codigo INNER JOIN asignaturasgrupo ag
+ON ag.CodigoAsignatura = asi.Codigo INNER JOIN alumno a
+ON a.Codigo = an.CodigoAlumno WHERE a.Municipio LIKE 'TACORONTE'
+GROUP BY asi.Codigo
+HAVING AVG(an.Nota) BETWEEN 5 AND 9;
+
+/* 49. Relación del número de bajas de cada grupo.*/
+
+SELECT COUNT(*) 'Numero total de bajas', alb.Grupo
+FROM alumnos_de_baja alb
+GROUP BY alb.Grupo;
+
+/* 50. Relación de alumnos del 811NMA que tiene al menos una asignatura suspendida.*/
+
+SELECT a.Codigo, a.Nombre, a.Apellidos, COUNT(an.Nota) Suspendidas
+FROM alumno a
+INNER JOIN alumnonota an ON an.CodigoAlumno = a.Codigo
+WHERE a.CodigoGrupo LIKE '811NMA' AND an.Nota < 5
+GROUP BY a.Codigo, a.Nombre;
+
+/* 51. Relación de alumnos del grupo 811NMA que tiene nota media mayor que la media del grupo.
+
+SELECT a.CodigoGrupo, a.Codigo, AVG(an.Nota) 'Media del grupo'
+FROM alumno a INNER JOIN alumnonota an
+ON a.Codigo = an.CodigoAlumno
+WHERE a.CodigoGrupo LIKE '811NMA'
+GROUP BY a.Codigo
+HAVING AVG(an.Nota) > 'Media del grupo';*/
+
+SELECT a.CodigoGrupo, a.Codigo, AVG(an.Nota) AS MediaAlumno
+FROM alumno a
+INNER JOIN alumnonota an ON a.Codigo = an.CodigoAlumno
+WHERE a.CodigoGrupo = '811NMA'
+GROUP BY a.CodigoGrupo, a.Codigo
+HAVING AVG(an.Nota) > (
+    SELECT AVG(an2.Nota)
+    FROM alumno a2
+    INNER JOIN alumnonota an2 ON a2.Codigo = an2.CodigoAlumno
+    WHERE a2.CodigoGrupo = '811NMA'
+);
+
+
+SELECT a.Codigo ,a.Nombre, a.Apellidos, AVG(an.Nota)
+FROM alumno a INNER JOIN alumnonota an
+ON a.Codigo = an.CodigoAlumno
+GROUP BY a.Nombre, a.Apellidos
+HAVING AVG(an.Nota);
