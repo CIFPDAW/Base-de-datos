@@ -310,30 +310,57 @@ INNER JOIN alumnonota an ON an.CodigoAlumno = a.Codigo
 WHERE a.CodigoGrupo LIKE '811NMA' AND an.Nota < 5
 GROUP BY a.Codigo, a.Nombre;
 
-/* 51. Relación de alumnos del grupo 811NMA que tiene nota media mayor que la media del grupo.
+/* 51. Relación de alumnos del grupo 811NMA que tiene nota media mayor que la media del grupo.*/
 
-SELECT a.CodigoGrupo, a.Codigo, AVG(an.Nota) 'Media del grupo'
-FROM alumno a INNER JOIN alumnonota an
-ON a.Codigo = an.CodigoAlumno
-WHERE a.CodigoGrupo LIKE '811NMA'
-GROUP BY a.Codigo
-HAVING AVG(an.Nota) > 'Media del grupo';*/
+/*MEDIA DEL GRUPO*/
 
-SELECT a.CodigoGrupo, a.Codigo, AVG(an.Nota) AS MediaAlumno
+SELECT AVG(an.Nota) MediaGrupo
 FROM alumno a
 INNER JOIN alumnonota an ON a.Codigo = an.CodigoAlumno
-WHERE a.CodigoGrupo = '811NMA'
-GROUP BY a.CodigoGrupo, a.Codigo
+WHERE a.CodigoGrupo LIKE '811NMA';
+
+
+SELECT a.CodigoGrupo, a.Codigo, AVG(an.Nota) MediaAlumno
+FROM alumno a
+INNER JOIN alumnonota an ON a.Codigo = an.CodigoAlumno
+WHERE a.CodigoGrupo LIKE '811NMA'
+GROUP BY a.Codigo
 HAVING AVG(an.Nota) > (
-    SELECT AVG(an2.Nota)
-    FROM alumno a2
-    INNER JOIN alumnonota an2 ON a2.Codigo = an2.CodigoAlumno
-    WHERE a2.CodigoGrupo = '811NMA'
+    SELECT AVG(an.Nota)
+    FROM alumno a
+    INNER JOIN alumnonota an ON a.Codigo = an.CodigoAlumno
+    WHERE a.CodigoGrupo LIKE '811NMA'
 );
 
+/*52. Relación de alumnos del grupo 913NMA que no tienen asignaturas.*/
 
-SELECT a.Codigo ,a.Nombre, a.Apellidos, AVG(an.Nota)
+/*CONTAR ASIGNATURAS*/
+SELECT ag.CodigoGrupo, COUNT(ag.CodigoAsignatura)
+FROM asignaturasgrupo ag
+WHERE ag.CodigoGrupo LIKE '913NMA';
+
+SELECT COUNT(an.CodigoAsignatura) ,a.*
 FROM alumno a INNER JOIN alumnonota an
-ON a.Codigo = an.CodigoAlumno
-GROUP BY a.Nombre, a.Apellidos
-HAVING AVG(an.Nota);
+ON  a.Codigo = an.CodigoAlumno
+WHERE a.CodigoGrupo LIKE '913NMA'
+GROUP BY a.Codigo
+HAVING COUNT(an.CodigoAsignatura) < (SELECT COUNT(ag.CodigoAsignatura)
+                                    FROM asignaturasgrupo ag
+                                    WHERE ag.CodigoGrupo LIKE '913NMA');
+
+/*53. Relación de alumnos de centros cuya nota media sea menor que la media del centro.*/
+
+/*CALCULAS MEDIA TOTAL*/
+
+SELECT AVG(an.Nota)
+FROM alumnonota an;
+
+
+
+SELECT AVG(an.Nota) MediaAlumno ,a.*
+FROM alumno a
+INNER JOIN alumnonota an ON a.Codigo = an.CodigoAlumno
+GROUP BY a.Codigo
+HAVING AVG(an.Nota) > (SELECT AVG(an.Nota)
+                        FROM alumnonota an);
+
