@@ -364,3 +364,60 @@ GROUP BY a.Codigo
 HAVING AVG(an.Nota) > (SELECT AVG(an.Nota)
                         FROM alumnonota an);
 
+/*56. Relación de profesores del centro que aprueban a todos los alumnos. */
+
+SELECT p.*
+FROM Profesor p
+INNER JOIN AsignaturasGrupo ag ON p.Codigo = ag.CodigoProfesor
+INNER JOIN AlumnoNota an ON ag.CodigoAsignatura = an.CodigoAsignatura
+INNER JOIN Alumno a ON an.CodigoAlumno = a.Codigo
+GROUP BY p.Codigo
+HAVING MIN(an.Nota) >= 5;
+
+SELECT DISTINCT p.*
+FROM Profesor p
+INNER JOIN AsignaturasGrupo ag ON p.Codigo = ag.CodigoProfesor
+INNER JOIN alumnonota an ON an.CodigoAsignatura = ag.CodigoAsignatura
+WHERE 5 <= ALL (SELECT an.Nota
+    FROM AlumnoNota an
+    WHERE an.CodigoAsignatura = ag.CodigoAsignatura
+);
+
+SELECT p.*, ag.CodigoAsignatura, ag.CodigoGrupo
+FROM profesor p
+INNER JOIN asignaturasgrupo ag ON p.Codigo = ag.CodigoProfesor
+WHERE 5 <= ALL(SELECT an.Nota
+                FROM alumnonota an
+                WHERE an.CodigoAsignatura = ag.CodigoAsignatura);
+
+/*57. Relación de profesores del centro que suspenden a mas del 50% de sus alumnos. */
+
+/* Número de alumnos que tiene un profesor */
+SELECT p.*, COUNT(DISTINCT a.Codigo) NumeroAlumnos
+FROM Profesor p
+INNER JOIN AsignaturasGrupo ag ON p.Codigo = ag.CodigoProfesor
+INNER JOIN Alumno a ON a.CodigoGrupo = ag.CodigoGrupo
+GROUP BY p.Codigo;
+
+/* Número de alumnos que tiene un profesor SUSPENDIDOS*/
+SELECT p.Codigo, p.Nombre, COUNT(DISTINCT a.Codigo) NumeroAlumnosSuspendidos
+FROM Profesor p
+INNER JOIN AsignaturasGrupo ag ON p.Codigo = ag.CodigoProfesor
+INNER JOIN Alumno a ON a.CodigoGrupo = ag.CodigoGrupo
+INNER JOIN AlumnoNota an ON a.Codigo = an.CodigoAlumno
+WHERE an.Nota < 5
+GROUP BY p.Codigo;
+
+/*FINAL*/
+SELECT p.Codigo, p.Nombre
+FROM Profesor p
+INNER JOIN AsignaturasGrupo ag ON p.Codigo = ag.CodigoProfesor
+INNER JOIN Alumno a ON a.CodigoGrupo = ag.CodigoGrupo
+INNER JOIN AlumnoNota an ON a.Codigo = an.CodigoAlumno
+WHERE an.Nota < 5
+GROUP BY p.Codigo, p.Nombre
+HAVING COUNT(an.CodigoAlumno) > (
+    SELECT COUNT(DISTINCT an2.CodigoAlumno) * 0.5
+    FROM ies.alumnonota an2
+    WHERE an2.Nota < 5
+);
