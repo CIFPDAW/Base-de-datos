@@ -94,3 +94,69 @@ WHERE o.objetivo < (SELECT SUM(e.ventas)
                     GROUP BY e.oficina
 );
 
+
+/* ACTUALIZACIONES */
+
+/*6. Añadir una nueva oficina para la ciudad de Madrid, con el número de
+oficina 30, con un objetivo de 100000 y región Centro.*/
+
+INSERT INTO oficinas (numoficina, localidad, zona, objetivo)
+VALUES (69, 'Madrid', 'Centro', 100000);
+
+SELECT *
+FROM oficinas o
+WHERE numoficina = 30;
+
+/*7. Cambiar los empleados de la oficina 21 a la oficina 30.*/
+
+UPDATE empleados e
+SET e.oficina = 30
+WHERE e.oficina = 21;
+
+SELECT *
+FROM empleados e
+WHERE e.oficina = 30;
+
+/*8. Eliminar los pedidos del empleado 105.*/
+
+DELETE p.*
+FROM pedidos p
+WHERE p.repre = 105;
+
+SELECT p.*
+FROM pedidos p
+WHERE p.repre = 105;
+
+/*BORRAR todos los pedidos del empleado Alvaro Jorge*/
+
+SELECT e.*
+FROM empleados e
+WHERE e.nombre LIKE "%Alvaro%";
+
+DELETE p.*
+FROM pedidos p
+WHERE p.repre = (SELECT e.num
+                 FROM empleados e
+                 WHERE e.nombre LIKE "Alvaro Jorge");
+
+SELECT p.*
+FROM pedidos p
+WHERE p.repre = (SELECT e.num
+                 FROM empleados e
+                 WHERE e.nombre LIKE "Alvaro Jorge");
+
+/*9. Eliminar las oficinas que no tengan empleados.*/
+
+SELECT o.numoficina
+FROM oficinas o;
+
+SELECT o.numoficina,COUNT(e.num) AS num_empleados
+FROM empleados e INNER
+JOIN oficinas o ON e.oficina = o.numoficina
+GROUP BY o.numoficina;
+
+DELETE FROM oficinas
+WHERE numoficina NOT IN (
+    SELECT DISTINCT e.oficina
+    FROM empleados e
+);
